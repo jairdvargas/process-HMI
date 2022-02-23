@@ -26,13 +26,32 @@ def ver_tags():
         ListaDeTags = {"Tags": 0}
         i=0
         for row in results:
-            #print(row[0])
             NumTag ="Tag_" + str(i)
             ListaDeTags[NumTag] = row[0]
             i=i+1
         ListaDeTags["Tags"]=i
         data=ListaDeTags
-        return data
+        return jsonify(data)
+
+@app.route("/ver-tags/<id_tag>", methods=["GET"])
+def imagen(id_tag):
+    if request.method == "GET":
+        provider = ["prv", "Microsoft.ACE.OLEDB.12.0", "Microsoft.Jet.OLEDB.4.0"]
+        constr = "Provider=ihOLEDB.iHistorian.1;User Id=;Password="
+        con = adodbapi.connect(constr)
+        cursor = con.cursor()
+        cursor.execute("SELECT TagName, TimeStamp, Value, Quality FROM ihRawData WHERE TagName = "+ id_tag +" AND samplingmode=RawbyTime AND RowCount=1 AND timestamp>=Now-10s ORDER BY timestamp DESC",)
+        results=cursor.fetchall()
+        resultado=results[0]
+        data={
+            "NombreTag": resultado[0],
+            "Tiempo": resultado[1].strftime("%d-%m-%Y %H:%M:%S"),
+            "Valor": resultado[2],
+            "Calidad": resultado[3],
+        }
+        return jsonify(data)
+
+
 
 if __name__=="__main__":
   app.run("0.0.0.0", port=5050)
