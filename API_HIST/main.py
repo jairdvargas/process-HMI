@@ -51,7 +51,33 @@ def imagen(id_tag):
         }
         return jsonify(data)
 
-
+@app.route("/ver-historico", methods=["GET"])
+def ver_historico():
+    if request.method == "GET":
+        nombre = request.args.get("nombre")
+        npuntos = request.args.get("npuntos")
+        intervalo= request.args.get("intervalo")
+        fechainicio = request.args.get("fechainicio")
+        fechafin = request.args.get("fechafin")
+        provider = ["prv", "Microsoft.ACE.OLEDB.12.0", "Microsoft.Jet.OLEDB.4.0"]
+        constr = "Provider=ihOLEDB.iHistorian.1;User Id=;Password="
+        con = adodbapi.connect(constr)
+        cursor = con.cursor()
+        cursor.execute("SELECT TagName, TimeStamp, Value, Quality FROM ihRawData WHERE TagName = "+ nombre +" AND RowCount="+ npuntos +" AND samplingmode=trend AND intervalmilliseconds="+ intervalo +" AND timestamp>="+ fechainicio +" AND timestamp<="+ fechafin,)
+        results=cursor.fetchall()
+        data=[]
+        i=0
+        for row in results:
+            resultado=row
+            data.append({
+                "Numero": i,
+                "NombreTag": resultado[0],
+                "Tiempo": resultado[1].strftime("%d-%m-%Y %H:%M:%S"),
+                "Valor": resultado[2],
+                "Calidad": resultado[3],
+            })
+            i=i+1
+        return jsonify(data)
 
 if __name__=="__main__":
   app.run("0.0.0.0", port=5050)
