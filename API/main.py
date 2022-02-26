@@ -6,7 +6,7 @@ import os
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 from flask_cors import CORS
-
+import json
 
 # cargar el archivo de variable donde esta la llave del api
 #http://localhost:5050/ver-historico?nombre=DESKTOP-3PEVOMB.Sin&npuntos=250&intervalo=1m&fechainicio=Now-2h&fechafin=Now
@@ -28,6 +28,12 @@ def listar_tags():
         data = respuesta.json()
         return data
 
+@app.route("/listar-tags-sim", methods=["GET"])
+def listar_tags_sim():
+    if request.method == "GET":
+        respuesta = {"Tag_0":"DESKTOP-3PEVOMB.Ramp","Tag_1":"DESKTOP-3PEVOMB.Sin","Tag_2":"DESKTOP-3PEVOMB.Step","Tags":3}
+        return jsonify(respuesta)
+
 @app.route("/tag/<id_tag>", methods=["GET"])
 def tag(id_tag):
     if request.method == "GET":
@@ -35,6 +41,12 @@ def tag(id_tag):
         respuesta = requests.get(url=nueva_URL)
         data = respuesta.json()
         return data
+
+@app.route("/tag-sim/<id_tag>", methods=["GET"])
+def tag_sim(id_tag):
+    if request.method == "GET":
+        respuesta = {"Calidad":"Good NonSpecific","NombreTag":"DESKTOP-3PEVOMB.Ramp","Tiempo":"26-02-2022 09:26:43","Valor":566.6666666666666}
+        return jsonify(respuesta)
 
 #http://localhost:5051/historico?nombre=DESKTOP-3PEVOMB.Sin&npuntos=250&intervalo=10m&fechainicio=Now-2h&fechafin=Now
 @app.route("/historico", methods=["GET"])
@@ -55,6 +67,15 @@ def historico():
         respuesta = requests.get(url=HISTORICOS_URL, params=params)
         data = respuesta.json()
         return jsonify(data)
+
+@app.route("/historico-sim", methods=["GET"])
+def historico_sim():
+    if request.method == "GET":
+        archivo = open("simulacion.json")
+        data = json.load(archivo)
+        archivo.close()
+        return jsonify(data)
+
 
 if __name__ == "__main__":
     app.run("0.0.0.0", port=5051)
