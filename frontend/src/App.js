@@ -1,9 +1,11 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Cabecera from './componentes/Cabecera';
+
 
 const App = () => {
   return (
     <div className="App">
-      <h1> Variables de proceso</h1>
+      <Cabecera titulo="Variables de proceso" />
     </div>
   );
 }
