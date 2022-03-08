@@ -1,26 +1,15 @@
 import React from 'react';
-import { Form, Button } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
 
-const Actualizar = ({ manejadorSubmit }) => {
-    return (
-        <Form onSubmit={manejadorSubmit}>
-            <Form.Group
-                className="mb-3"
-                controlId="formHorizontalEmail"
-            >
-            
-            <Button variant="primary" type="submit">
-                    {' '}
-                    Buscar
-            </Button>
-                
-              </Form.Group>
-        </Form>
-          
-        
-      
-    );
-  };
-  
-  export default Actualizar;
+const Actualizar = ({ eliminarValorAnterior}) => {
+  //vamos a retornar descripcion o sino alt descripcion porque a veces viene en null
+  return (
+    
+        <Button variant="primary" onClick={() => eliminarValorAnterior("Tagnuevo")}>
+          Actualizar
+        </Button>
+  );
+};
+
+export default Actualizar;
   
