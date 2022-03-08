@@ -7,6 +7,7 @@ from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 from flask_cors import CORS
 import json
+import random
 
 # cargar el archivo de variable donde esta la llave del api
 #http://localhost:5050/ver-historico?nombre=DESKTOP-3PEVOMB.Sin&npuntos=250&intervalo=1m&fechainicio=Now-2h&fechafin=Now
@@ -45,7 +46,8 @@ def tag(id_tag):
 @app.route("/tag-sim/<id_tag>", methods=["GET"])
 def tag_sim(id_tag):
     if request.method == "GET":
-        respuesta = {"Calidad":"Good NonSpecific","NombreTag":"DESKTOP-3PEVOMB.Ramp","Tiempo":"26-02-2022 09:26:43","Valor":566.6666666666666}
+        valorrandom=random.randrange(1.0,1000.0)
+        respuesta = {"Calidad":"Good NonSpecific","NombreTag":"DESKTOP-3PEVOMB.Ramp","Tiempo":"26-02-2022 09:26:43","Valor":valorrandom}
         return jsonify(respuesta)
 
 #http://localhost:5051/historico?nombre=DESKTOP-3PEVOMB.Sin&npuntos=250&intervalo=10m&fechainicio=Now-2h&fechafin=Now
