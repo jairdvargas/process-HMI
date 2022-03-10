@@ -1,9 +1,9 @@
 import os
 from pymongo import MongoClient
 
-MONGO_URL = "localhost"
-MONGO_USUARIO = ""
-MONGO_PASSWORD = ""
+MONGO_URL = "mongo"
+MONGO_USUARIO = "root"
+MONGO_PASSWORD = "example"
 MONGO_PUERTO = 27017
 cliente_mongo = MongoClient(
     host=MONGO_URL, username=MONGO_USUARIO, password=MONGO_PASSWORD, port=MONGO_PUERTO
@@ -11,12 +11,12 @@ cliente_mongo = MongoClient(
 
 
 def insertar_documento_test():
-    db = cliente_mongo.prueba
+    db = cliente_mongo.historian
     coleccion_test = db.tags
-    res = coleccion_test.insert_one({"NombreTag": "DESKTOP-3PEVOMB.Ramp", "Numero": 1})
+    res = coleccion_test.insert_one({"EGU":"°C","_id":"DESKTOP-3PEVOMB.Test","descripcion":"Test de variable","tag":"DESKTOP-3PEVOMB.Test","valor":69.3,"zona":"zonatest"})
     id_insertada = res.inserted_id
-    print({"id_insertado": id_insertada})
+    print({"tag_insertado": id_insertada})
     
 
-if __name__ == "__main__":
-    insertar_documento_test()
+#if __name__ == "__main__":
+#    insertar_documento_test()

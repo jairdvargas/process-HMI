@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 from flask_cors import CORS
 import json
 import random
+from cliente_mongo import insertar_documento_test
+from cliente_mongo import cliente_mongo
 
 # cargar el archivo de variable donde esta la llave del api
 #http://localhost:5050/ver-historico?nombre=DESKTOP-3PEVOMB.Sin&npuntos=250&intervalo=1m&fechainicio=Now-2h&fechafin=Now
@@ -16,10 +18,36 @@ HISTORIAN_TAGS_URL="http://localhost:5050/ver-tags"
 HISTORIAN_TAG_URL="http://localhost:5050/ver-tags/"
 HISTORICOS_URL="http://localhost:5050/ver-historico"
 
+#MongoDB
+historiandb = cliente_mongo.historian
+coleccion_de_tags= historiandb.tags
+insertar_documento_test()
+
 app = Flask(__name__)
 # aqui se habilita cors
 CORS(app)
 
+#Mongo configuracion de endpoints para administrador
+#GET- devuelve los tags almacenado en el servidor local
+#PUT- agregar tags al servidor local
+
+@app.route("/variables", methods=["GET", "POST"])
+def variables():
+    if request.method == "GET":
+        # leer tags de la base de datos
+        variablesHIST = coleccion_de_tags.find({})
+        # la funcion find retorna "cursor" y se tiene que convertir a json con jsonify
+        return jsonify([img for img in variablesHIST])
+    if request.method == "POST":
+        # guardar imagen en la base de datos
+        variableHIST = request.get_json()
+        variableHIST["_id"] = variableHIST.get("tag")
+        # json.loads(request.data)
+        resultado = coleccion_de_tags.insert_one(variableHIST)
+        id_insertada = resultado.inserted_id
+        return {"tag_insertado": id_insertada}
+
+#Listar tags desde el servidor historian
 @app.route("/listar-tags", methods=["GET"])
 def listar_tags():
     if request.method == "GET":

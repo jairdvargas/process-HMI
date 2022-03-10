@@ -5,14 +5,29 @@ import Variabledigital from './componentes/Variabledigital';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import Actualizar from './componentes/Actualizar';
+import { Container, Row, Col, Tab } from 'react-bootstrap';
+
 
 const API_URL = 'http://127.0.0.1:5051';
 
 const App = () => {
 
   const [variable, definirVariable] = useState([]);
+  const [tagshistorian, definirTagshistorian] = useState([]);
 
-  //solo se ejecutara una sola vez
+  //Ejecucion de una sola vez para recuperar tags y valores de servidor
+  const getTagsHistorian = async () => {
+    try {
+      const resultado = await axios.get(`${API_URL}/variables`);
+      definirTagshistorian(resultado.data || []);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(()=> getTagsHistorian(),[]);
+
+  //solo se ejecutara una sola vez para leer un solo tag simulado
   const getVariableInstantanea = async () => {
     try {
       const resultado = await axios.get(`${API_URL}/tag-sim/VariableHistorian`);
@@ -45,10 +60,22 @@ const App = () => {
     <div className="App">
       <Cabecera titulo="Variables de proceso" />
       <Actualizar eliminarValorAnterior={Actualiza1Variable}/>
-      <Variableanalogica nombretag="Variable Simulacion: " valortag={AuxValor1} unidadtag=" PSI" />
-      <Variableanalogica nombretag="Flujo de balanza: " valortag="86" unidadtag=" Kg/h" />
-      <Variableanalogica  nombretag="Temperatura tolva extractor: " valortag="64" unidadtag=" °C" />
-      <Variabledigital  nombretag="Estado del RD1 " valortag="ON" />
+      <Variableanalogica nombretag="Flujo de balanza: " valortag={AuxValor1} unidadtag=" Kg/h" />
+      <Variabledigital  nombretag="Estado de Planta " valortag="Funcionando" />
+      <Container className="mt-4">
+      {tagshistorian.length ? (
+          <Row sd={1} md={2} lg={3}>
+            {tagshistorian.map((imagen, i) => (
+              <Col key={i} className="pb-3">
+                {imagen.tag}
+                <Variableanalogica nombretag={imagen.descripcion} valortag={imagen.valor} unidadtag={imagen.EGU} />
+              </Col>
+            ))}
+          </Row>
+        ) : (
+          <br />
+        )}
+      </Container>
     </div>
   );
 }
