@@ -3,10 +3,10 @@ import Cabecera from './componentes/Cabecera';
 import Variableanalogica from './componentes/Variableanalogica';
 import Variabledigital from './componentes/Variabledigital';
 import axios from 'axios';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Actualizar from './componentes/Actualizar';
-import { Container, Row, Col, Tab } from 'react-bootstrap';
-
+import { Container, Row, Col, Tab, Tabs} from 'react-bootstrap';
+import Minitarjeta from './componentes/Minitarjeta';
 
 const API_URL = 'http://127.0.0.1:5051';
 
@@ -26,6 +26,10 @@ const App = () => {
   };
 
   useEffect(()=> getTagsHistorian(),[]);
+  useInterval(() => {
+    // Se lee cada 1000 milisegundos osea 1 segundo los datos del servidor
+    getTagsHistorian();
+  }, 1000);
 
   //solo se ejecutara una sola vez para leer un solo tag simulado
   const getVariableInstantanea = async () => {
@@ -42,7 +46,7 @@ const App = () => {
   //console.log(variable.Valor);
 
   const AuxValor1 = variable.Valor ? variable.Valor.toPrecision(4) : 0.0000;
-
+ 
   //-----------Boton de actualizar valor
   const Actualiza1Variable = async (id) => {
     console.log("click detectado")
@@ -54,28 +58,60 @@ const App = () => {
       console.log(error);
     }
   };
-
-
+  //------ inicio
+  //---------- Funcion para actualizar cada x segundos
+  //https://overreacted.io/making-setinterval-declarative-with-react-hooks/
+  function useInterval(callback, delay) {
+    const savedCallback = useRef();
+  
+    // Remember the latest callback.
+    useEffect(() => {
+      savedCallback.current = callback;
+    }, [callback]);
+  
+    // Set up the interval.
+    useEffect(() => {
+      function tick() {
+        savedCallback.current();
+      }
+      if (delay !== null) {
+        let id = setInterval(tick, delay);
+        return () => clearInterval(id);
+      }
+    }, [delay]);
+  }
+  //------- fin
   return (
     <div className="App">
       <Cabecera titulo="Variables de proceso" />
-      <Actualizar eliminarValorAnterior={Actualiza1Variable}/>
-      <Variableanalogica nombretag="Flujo de balanza: " valortag={AuxValor1} unidadtag=" Kg/h" />
-      <Variabledigital  nombretag="Estado de Planta " valortag="Funcionando" />
-      <Container className="mt-4">
-      {tagshistorian.length ? (
-          <Row sd={1} md={2} lg={3}>
-            {tagshistorian.map((imagen, i) => (
-              <Col key={i} className="pb-3">
-                {imagen.tag}
-                <Variableanalogica nombretag={imagen.descripcion} valortag={imagen.valor} unidadtag={imagen.EGU} />
-              </Col>
-            ))}
-          </Row>
-        ) : (
-          <br />
-        )}
-      </Container>
+      <Tabs defaultActiveKey="home" id="uncontrolled-tab-example" className="mb-3">
+        <Tab eventKey="home" title="Home">
+            <Container className="mt-4">
+              {tagshistorian.length ? (
+                <Row sd={1} md={2} lg={3}>
+                  {tagshistorian.map((imagen, i) => (
+                    <Col key={i} className="pb-3">
+                      <Minitarjeta variableHist={imagen} />
+                    </Col>
+                  ))}
+                </Row>
+              ) : (
+                <br />
+              )}
+            </Container>
+        </Tab>
+        <Tab eventKey="profile" title="Profile">
+          <Actualizar eliminarValorAnterior={Actualiza1Variable}/>
+          <Variableanalogica nombretag="Flujo de balanza: " valortag={AuxValor1} unidadtag=" Kg/h" />
+        </Tab>
+        <Tab eventKey="contact" title="Contact" disabled>
+          <Variabledigital  nombretag="Estado de Planta " valortag="Funcionando" />
+        </Tab>
+      </Tabs>
+      
+      
+      
+      
     </div>
   );
 }

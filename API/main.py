@@ -21,7 +21,8 @@ HISTORICOS_URL="http://localhost:5050/ver-historico"
 #MongoDB
 historiandb = cliente_mongo.historian
 coleccion_de_tags= historiandb.tags
-insertar_documento_test()
+# Funcion de prueba cuando no se tiene nada en la DB
+# insertar_documento_test()
 
 app = Flask(__name__)
 # aqui se habilita cors
