@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from 'react';
 import Actualizar from './componentes/Actualizar';
 import { Container, Row, Col, Tab, Tabs} from 'react-bootstrap';
 import Minitarjeta from './componentes/Minitarjeta';
+import Grafica from './componentes/Grafica';
 
 const API_URL = 'http://127.0.0.1:5051';
 
@@ -81,6 +82,8 @@ const App = () => {
     }, [delay]);
   }
   //------- fin
+
+  
   return (
     <div className="App">
       <Cabecera titulo="Variables de proceso" />
@@ -103,9 +106,28 @@ const App = () => {
         <Tab eventKey="profile" title="Profile">
           <Actualizar eliminarValorAnterior={Actualiza1Variable}/>
           <Variableanalogica nombretag="Flujo de balanza: " valortag={AuxValor1} unidadtag=" Kg/h" />
-        </Tab>
-        <Tab eventKey="contact" title="Contact" disabled>
           <Variabledigital  nombretag="Estado de Planta " valortag="Funcionando" />
+        </Tab>
+        <Tab eventKey="Historicos" title="Contact">
+            <Container className="mt-4">
+              {
+                <Row sd={1} md={1} lg={2}>
+                  
+                    <Col key={5} className="pb-3">
+                    <Grafica />
+                    </Col>
+                    <Col key={3} className="pb-3">
+                      <Grafica />
+                    </Col>
+                    <Col key={1} className="pb-3">
+                      <Grafica />
+                    </Col>
+                  
+                </Row>
+              }
+            </Container>
+          
+          
         </Tab>
       </Tabs>
       
