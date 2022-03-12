@@ -21,13 +21,17 @@ def ver_tags():
         constr = "Provider=ihOLEDB.iHistorian.1;User Id=;Password="
         con = adodbapi.connect(constr)
         cursor = con.cursor()
-        cursor.execute("SELECT TagName FROM ihTags",)
+        cursor.execute("SELECT TagName, Description, EngUnits FROM ihTags",)
         results=cursor.fetchall()
         ListaDeTags = {"Tags": 0}
         i=0
         for row in results:
             NumTag ="Tag_" + str(i)
-            ListaDeTags[NumTag] = row[0]
+            ListaDeTags[NumTag] = {
+            "tag": row[0],
+            "descripcion": row[1],
+            "EGU": row[2]
+             }
             i=i+1
         ListaDeTags["Tags"]=i
         data=ListaDeTags
@@ -44,10 +48,10 @@ def imagen(id_tag):
         results=cursor.fetchall()
         resultado=results[0]
         data={
-            "NombreTag": resultado[0],
-            "Tiempo": resultado[1].strftime("%d-%m-%Y %H:%M:%S"),
-            "Valor": resultado[2],
-            "Calidad": resultado[3],
+            "tag": resultado[0],
+            "tiempo": resultado[1].strftime("%d-%m-%Y %H:%M:%S"),
+            "valor": resultado[2],
+            "calidad": resultado[3],
         }
         return jsonify(data)
 
@@ -70,11 +74,11 @@ def ver_historico():
         for row in results:
             resultado=row
             data.append({
-                "Numero": i,
-                "NombreTag": resultado[0],
-                "Tiempo": resultado[1].strftime("%d-%m-%Y %H:%M:%S"),
-                "Valor": resultado[2],
-                "Calidad": resultado[3],
+                "numero": i,
+                "tag": resultado[0],
+                "tiempo": resultado[1].strftime("%d-%m-%Y %H:%M:%S"),
+                "valor": resultado[2],
+                "calidad": resultado[3],
             })
             i=i+1
         return jsonify(data)
