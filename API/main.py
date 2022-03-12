@@ -65,23 +65,24 @@ def guardar_listaendb():
         # leer tags del historian
         respuesta = requests.get(url=HISTORIAN_TAGS_URL)
         # la funcion find retorna "cursor" y se tiene que convertir a json con jsonify
-        data = respuesta.json()
-    
-        tagfin=int(data["Tags"])
-        print(tagfin)    
+        dato=respuesta.json()
         milista = []
         i=0
-        while i<tagfin:
-            tagaleer="Tag_"+ str(i)
-            print(tagaleer)
-            milista.append({
+        #Se recupera del response a un diccionario
+        diccionario=dato.items()
+        for key, value in diccionario:
+            #se va ir avanzando menos el ultimo valor
+            if i<len(diccionario)-1:
+                Nuevo=value
+                milista.append({
                 "_id": i,
-                "tag": data[tagaleer]
-            })
+                "tag": Nuevo["tag"],
+                "descripcion": Nuevo["descripcion"],
+                "EGU": Nuevo["EGU"]
+                })
             i += 1
-        print(milista)
         resultado = coleccion_de_lista.insert_many(milista)
-        return data
+        return dato
 
 @app.route("/listar-tags-sim", methods=["GET"])
 def listar_tags_sim():
@@ -101,13 +102,31 @@ def tag(id_tag):
 @app.route("/tag-adb", methods=["GET"])
 def tag_adb():
     if request.method == "GET":
+        #lee los tags configurados en mongodb
         listaTags=coleccion_de_lista.find({})
+        #transformamos en una lista de diccionarios
         data=[img for img in listaTags]
         i=0
+        print(data)
         while i<len(data):
-            print(data[i]["tag"])
+            #tomamos un diccionario de la lista
+            dict_tag=data[i]
+            #recuperamos el nombre del tag del diccionario
+            id_tag=dict_tag["tag"]
+            desc_tag=dict_tag["descripcion"]
+            egu_tag=dict_tag["EGU"]
+            #preguntamos el valor en el servidor historian
+            nueva_URL=HISTORIAN_TAG_URL + id_tag
+            respuesta = requests.get(url=nueva_URL)
+            #obtenemos respuesta del servidor historian y transformamos a json
+            dataHIST = respuesta.json()
+            dataHIST["_id"] = dataHIST .get("tag")
+            dataHIST["descripcion"] = desc_tag
+            dataHIST["EGU"] = egu_tag
+            respuestaMongoDB=coleccion_de_tags.insert_one(dataHIST)
             i += 1
-        return jsonify(data)
+        
+        return jsonify(dataHIST)
 
 @app.route("/tag-sim/<id_tag>", methods=["GET"])
 def tag_sim(id_tag):
