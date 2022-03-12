@@ -14,13 +14,14 @@ from cliente_mongo import cliente_mongo
 # cargar el archivo de variable donde esta la llave del api
 #http://localhost:5050/ver-historico?nombre=DESKTOP-3PEVOMB.Sin&npuntos=250&intervalo=1m&fechainicio=Now-2h&fechafin=Now
 
-HISTORIAN_TAGS_URL="http://localhost:5050/ver-tags"
-HISTORIAN_TAG_URL="http://localhost:5050/ver-tags/"
-HISTORICOS_URL="http://localhost:5050/ver-historico"
+HISTORIAN_TAGS_URL="http://192.168.200.109:5050/ver-tags"
+HISTORIAN_TAG_URL="http://192.168.200.109:5050/ver-tags/"
+HISTORICOS_URL="http://192.168.200.109:5050/ver-historico"
 
 #MongoDB
 historiandb = cliente_mongo.historian
 coleccion_de_tags= historiandb.tags
+coleccion_de_lista= historiandb.lista
 # Funcion de prueba cuando no se tiene nada en la DB
 # insertar_documento_test()
 
@@ -57,6 +58,30 @@ def listar_tags():
         # la funcion find retorna "cursor" y se tiene que convertir a json con jsonify
         data = respuesta.json()
         return data
+#Configuracion inicial para tags que se van a leer desde 
+@app.route("/guardar-listaendb", methods=["GET"])
+def guardar_listaendb():
+    if request.method == "GET":
+        # leer tags del historian
+        respuesta = requests.get(url=HISTORIAN_TAGS_URL)
+        # la funcion find retorna "cursor" y se tiene que convertir a json con jsonify
+        data = respuesta.json()
+    
+        tagfin=int(data["Tags"])
+        print(tagfin)    
+        milista = []
+        i=0
+        while i<tagfin:
+            tagaleer="Tag_"+ str(i)
+            print(tagaleer)
+            milista.append({
+                "_id": i,
+                "tag": data[tagaleer]
+            })
+            i += 1
+        print(milista)
+        resultado = coleccion_de_lista.insert_many(milista)
+        return data
 
 @app.route("/listar-tags-sim", methods=["GET"])
 def listar_tags_sim():
@@ -71,6 +96,18 @@ def tag(id_tag):
         respuesta = requests.get(url=nueva_URL)
         data = respuesta.json()
         return data
+
+##leer tags a leer de historico en db
+@app.route("/tag-adb", methods=["GET"])
+def tag_adb():
+    if request.method == "GET":
+        listaTags=coleccion_de_lista.find({})
+        data=[img for img in listaTags]
+        i=0
+        while i<len(data):
+            print(data[i]["tag"])
+            i += 1
+        return jsonify(data)
 
 @app.route("/tag-sim/<id_tag>", methods=["GET"])
 def tag_sim(id_tag):
