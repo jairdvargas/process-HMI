@@ -99,6 +99,7 @@ def tag(id_tag):
         return data
 
 ##leer tags a leer de historico en db
+#Esto se utilizara para ir actualizando con cada consulta los datos de la lista de tags.
 @app.route("/tag-adb", methods=["GET"])
 def tag_adb():
     if request.method == "GET":
@@ -123,7 +124,7 @@ def tag_adb():
             dataHIST["_id"] = dataHIST .get("tag")
             dataHIST["descripcion"] = desc_tag
             dataHIST["EGU"] = egu_tag
-            respuestaMongoDB=coleccion_de_tags.insert_one(dataHIST)
+            respuestaMongoDB=coleccion_de_tags.replace_one({"_id": dataHIST["_id"]}, dataHIST, upsert=True)
             i += 1
         
         return jsonify(dataHIST)

@@ -7,6 +7,11 @@ services:
       - '5051:5051'
     volumes:
       - ./API:/app
+  auto:
+    restart: always
+    build: ./AUTO
+    volumes:
+      - ./AUTO:/app
   mongo:
     image: mongo
     restart: always
