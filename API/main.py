@@ -22,6 +22,7 @@ HISTORICOS_URL="http://192.168.200.109:5050/ver-historico"
 historiandb = cliente_mongo.historian
 coleccion_de_tags= historiandb.tags
 coleccion_de_lista= historiandb.lista
+coleccion_de_historicos=historiandb.historicos
 # Funcion de prueba cuando no se tiene nada en la DB
 # insertar_documento_test()
 
@@ -128,6 +129,43 @@ def tag_adb():
             i += 1
         
         return jsonify(dataHIST)
+
+##leer datos historicos o tendencia en db
+#Esto se utilizara para ir actualizando con cada consulta los datos de la lista de historicos de graficas.
+@app.route("/historico-adb", methods=["GET"])
+def historico_adb():
+    if request.method == "GET":
+        #lee los tags configurados en mongodb
+        listaTags=coleccion_de_historicos.find({})
+        #transformamos en una lista de diccionarios
+        data=[img for img in listaTags]
+        #se iniciliza una variable en 0 para ser el primer diccionario de tag
+        i=0
+        #Se va a recorrer ciclicamente cada tag de la DB historicos
+        while i<len(data):
+            #tomamos un diccionario de la lista
+            dict_tag=data[i]
+            #recuperamos el nombre del tag del diccionario
+            id_tag=dict_tag["_id"]
+            #armamos los parametros de historico
+            params = {
+                "nombre": id_tag,
+                "npuntos": int(10),
+                "intervalo": "10m",
+                "fechainicio": "Now-2h",
+                "fechafin": "Now"
+                }
+            #preguntamos el valor en el servidor historian
+            respuesta = requests.get(url=HISTORICOS_URL, params=params)
+            datosHist = respuesta.json()
+            #Una vez que tenemos respuesta armamos esos historicos antes de escribir en la db
+            dict_tag["historico"]=datosHist
+            #Si existe en la DB actualizamos con el dato historico, sino igual se crea
+            respuestaMongoDB=coleccion_de_historicos.replace_one({"_id": id_tag}, dict_tag, upsert=True)
+            #Pasamos al siguiente tag de la lista.
+            i += 1
+        #Devolvemos la lista de tags que se actualizaron
+        return jsonify({"historizado": "Correcto"})
 
 @app.route("/tag-sim/<id_tag>", methods=["GET"])
 def tag_sim(id_tag):
