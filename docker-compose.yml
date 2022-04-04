@@ -12,6 +12,11 @@ services:
     build: ./AUTO
     volumes:
       - ./AUTO:/app
+  autohist:
+    restart: always
+    build: ./AUTOHIST
+    volumes:
+      - ./AUTOHIST:/app
   mongo:
     image: mongo
     restart: always
