@@ -21,39 +21,43 @@ ChartJS.register(
     Tooltip,
     Legend
 );
-const options = {
+
+
+const Grafica = ({nombreTagHist, ejeYTagHist, ejeXTagHist}) => {
+  let labels=[];
+  labels=ejeXTagHist;
+  const options = {
     responsive: true,
     plugins: {
       title: {
-        display: true,
-        text: 'Variable de proceso',
+        display: false,
+        text: 'Variable: ' + nombreTagHist,
+      },
+      legend: {
+        display:false,
       },
     },
-};
-
-const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-const data = {
+  };
+  const data = {
     labels,
     datasets: [
       {
-        label: 'Dataset 1',
-        data: labels.map(() => Math.random()),
+        label: nombreTagHist,
+        data: ejeYTagHist,
         borderColor: 'rgb(255, 99, 132)',
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
       },
     ],
   };
-
-
-const Grafica = () => {
-    return (
-    <Card style={{ width: '40rem', height: '25rem' }}>
-         <Card.Header>{'Titulo'}</Card.Header>
+  
+  return (
+    <Card style={{ width: '50rem', height: '30rem' }}>
+        <Card.Header>{nombreTagHist}</Card.Header>
         <Card.Body>
         <Line options={options} data={data} /> 
         </Card.Body>
     </Card>
-    );
+  );
 };
 
 export default Grafica;

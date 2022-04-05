@@ -50,6 +50,14 @@ def variables():
         id_insertada = resultado.inserted_id
         return {"tag_insertado": id_insertada}
 
+@app.route("/tendencias", methods=["GET"])
+def tendencias():
+    if request.method == "GET":
+        # leer tags de la base de datos
+        variablesHIST = coleccion_de_historicos.find({})
+        # la funcion find retorna "cursor" y se tiene que convertir a json con jsonify
+        return jsonify([img for img in variablesHIST])
+
 #Listar tags desde el servidor historian
 @app.route("/listar-tags", methods=["GET"])
 def listar_tags():

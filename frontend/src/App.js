@@ -15,6 +15,8 @@ const App = () => {
 
   const [variable, definirVariable] = useState([]);
   const [tagshistorian, definirTagshistorian] = useState([]);
+  const [tendencias, definirTendencias] = useState([]);
+  const [setieneDatos, definirSeTieneDatos] = useState(false);
 
   //Ejecucion de una sola vez para recuperar tags y valores de servidor
   const getTagsHistorian = async () => {
@@ -31,6 +33,27 @@ const App = () => {
     // Se lee cada 1000 milisegundos osea 1 segundo los datos del servidor
     getTagsHistorian();
   }, 1000);
+
+  //'''''Inicio de funcion:  ejecuta una sola lectura de recuperar tendencias para graficas de servidor
+  const getTendencias = async () => {
+    try {
+      const resultado= await axios.get(`${API_URL}/tendencias`);
+      definirTendencias(resultado.data || []);
+      console.log(resultado.data);
+      definirSeTieneDatos(true);
+    } catch (error) {
+      definirSeTieneDatos(false);
+      console.log(error);
+    }
+  };
+
+  useEffect(()=> getTendencias(),[]);
+
+  useInterval(() => {
+    // Se lee cada 60000 milisegundos osea 60 segundo los datos del servidor
+    getTendencias();
+  }, 30000);
+ //'''''' Fin 
 
   //solo se ejecutara una sola vez para leer un solo tag simulado
   const getVariableInstantanea = async () => {
@@ -111,20 +134,22 @@ const App = () => {
         <Tab eventKey="Historicos" title="Contact">
             <Container className="mt-4">
               {
-                <Row sd={1} md={1} lg={2}>
-                  
-                    <Col key={5} className="pb-3">
-                    <Grafica />
+              tendencias.length && setieneDatos ? (
+                <Row sd={1} md={1} lg={1}>
+                    {tendencias.map((datoimagen, i) => (
+                    <Col key={i} className="pb-3">
+                      <Grafica 
+                        nombreTagHist={tendencias[i]._id} 
+                        ejeYTagHist={tendencias[i].historico.map((datohhh)=> datohhh.valor)}
+                        ejeXTagHist={tendencias[i].historico.map((datohhh)=> datohhh.tiempo)} 
+                      />
                     </Col>
-                    <Col key={3} className="pb-3">
-                      <Grafica />
-                    </Col>
-                    <Col key={1} className="pb-3">
-                      <Grafica />
-                    </Col>
+                  ))}
                   
                 </Row>
-              }
+              ) : (
+                <br />
+              )}
             </Container>
           
           
